@@ -22,6 +22,7 @@ const PostForm = () => {
   const { openConnectModal } = useConnectModal();
   const [text, setText] = useState("");
   const [approvalCooldown, setApprovalCooldown] = useState(false);
+  const [approvalSubmitting, setApprovalSubmitting] = useState(false);
 
   const byteLength = new TextEncoder().encode(text).length;
   const isOverLimit = byteLength > 280;
@@ -63,6 +64,8 @@ const PostForm = () => {
   };
 
   const handleApprove = async () => {
+    if (approvalSubmitting || approvalCooldown) return;
+    setApprovalSubmitting(true);
     try {
       const approvePromise = writeApprove({
         functionName: "approve",
@@ -83,6 +86,8 @@ const PostForm = () => {
       }, 4000);
     } catch (err) {
       handleError(err);
+    } finally {
+      setApprovalSubmitting(false);
     }
   };
 
@@ -125,9 +130,13 @@ const PostForm = () => {
         </button>
       );
     }
-    if (!hasAllowance && !approvalCooldown) {
+    if (!hasAllowance && !approvalCooldown && !approvalSubmitting) {
       return (
-        <button className="terminal-btn w-full" onClick={handleApprove} disabled={!hasBalance || isApproving}>
+        <button
+          className="terminal-btn w-full"
+          onClick={handleApprove}
+          disabled={!hasBalance || isApproving || approvalSubmitting}
+        >
           {!hasBalance ? "> INSUFFICIENT CLAWD" : isApproving ? "> APPROVING..." : "> APPROVE CLAWD"}
         </button>
       );
