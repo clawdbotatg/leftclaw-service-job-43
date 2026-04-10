@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { Address } from "@scaffold-ui/components";
 import type { NextPage } from "next";
 import { formatUnits } from "viem";
@@ -18,6 +19,7 @@ const PostForm = () => {
   const { address: connectedAddress, isConnected } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
+  const { openConnectModal } = useConnectModal();
   const [text, setText] = useState("");
   const [approvalCooldown, setApprovalCooldown] = useState(false);
 
@@ -62,22 +64,23 @@ const PostForm = () => {
 
   const handleApprove = async () => {
     try {
-      await writeApprove({
+      const approvePromise = writeApprove({
         functionName: "approve",
         args: [BURN_BOARD_ADDRESS, BURN_COST],
       });
+      // Mobile deep link: redirect to wallet before awaiting so user can sign
+      if (typeof window !== "undefined" && !window.ethereum) {
+        setTimeout(() => {
+          window.location.href = "metamask://";
+        }, 500);
+      }
+      await approvePromise;
       notification.success("CLAWD approved!");
       setApprovalCooldown(true);
       setTimeout(() => {
         setApprovalCooldown(false);
         refetchAllowance();
       }, 4000);
-      // Mobile deep link
-      if (typeof window !== "undefined" && !window.ethereum) {
-        setTimeout(() => {
-          window.location.href = "metamask://";
-        }, 2000);
-      }
     } catch (err) {
       handleError(err);
     }
@@ -86,18 +89,19 @@ const PostForm = () => {
   const handlePost = async () => {
     if (!text.trim() || isOverLimit) return;
     try {
-      await writePost({
+      const postPromise = writePost({
         functionName: "post",
         args: [text],
       });
-      notification.success("Message posted & 1000 CLAWD burned!");
-      setText("");
-      // Mobile deep link
+      // Mobile deep link: redirect to wallet before awaiting so user can sign
       if (typeof window !== "undefined" && !window.ethereum) {
         setTimeout(() => {
           window.location.href = "metamask://";
-        }, 2000);
+        }, 500);
       }
+      await postPromise;
+      notification.success("Message posted & 1000 CLAWD burned!");
+      setText("");
     } catch (err) {
       handleError(err);
     }
@@ -109,7 +113,7 @@ const PostForm = () => {
   const renderButton = () => {
     if (!isConnected) {
       return (
-        <button className="terminal-btn w-full" disabled>
+        <button className="terminal-btn w-full" onClick={() => openConnectModal?.()}>
           {">"} CONNECT WALLET
         </button>
       );
