@@ -11,6 +11,17 @@ contract BurnBoard {
     uint256 public constant BURN_COST = 1000 * 10**18;
     uint256 public constant MAX_PAGE_SIZE = 50;
 
+    uint256 private _status;
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    modifier nonReentrant() {
+        require(_status != _ENTERED, "reentrant call");
+        _status = _ENTERED;
+        _;
+        _status = _NOT_ENTERED;
+    }
+
     struct Message {
         address author;
         uint64 timestamp;
@@ -21,7 +32,11 @@ contract BurnBoard {
 
     event Posted(address indexed author, uint256 indexed index, string text);
 
-    function post(string calldata text) external {
+    constructor() {
+        _status = _NOT_ENTERED;
+    }
+
+    function post(string calldata text) external nonReentrant {
         require(bytes(text).length > 0 && bytes(text).length <= 280, "invalid length");
         // CEI: state first, external call last
         messages.push(Message(msg.sender, uint64(block.timestamp), text));
