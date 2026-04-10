@@ -3,6 +3,7 @@ import {
   baseAccount,
   ledgerWallet,
   metaMaskWallet,
+  phantomWallet,
   rainbowWallet,
   safeWallet,
   walletConnectWallet,
@@ -20,6 +21,7 @@ const showBurnerWallet =
 const wallets = [
   metaMaskWallet,
   walletConnectWallet,
+  phantomWallet,
   ledgerWallet,
   baseAccount,
   rainbowWallet,
@@ -32,7 +34,6 @@ const wallets = [
  */
 export const wagmiConnectors = () => {
   // Only create connectors on client-side to avoid SSR issues
-  // TODO: update when https://github.com/rainbow-me/rainbowkit/issues/2476 is resolved
   if (typeof window === "undefined") {
     return [];
   }
@@ -46,7 +47,7 @@ export const wagmiConnectors = () => {
     ],
 
     {
-      appName: "scaffold-eth-2",
+      appName: "CLAWD Burn Board",
       projectId: scaffoldConfig.walletConnectProjectId,
     },
   );

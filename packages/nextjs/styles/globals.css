@@ -2,8 +2,6 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
 @theme {
   --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
   --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -11,57 +9,57 @@
 
 @plugin "daisyui" {
   themes:
-    light,
+    light --prefersdark,
     dark --prefersdark;
 }
 
 @plugin "daisyui/theme" {
   name: "light";
 
-  --color-primary: #93bbfb;
-  --color-primary-content: #212638;
-  --color-secondary: #dae8ff;
-  --color-secondary-content: #212638;
-  --color-accent: #93bbfb;
-  --color-accent-content: #212638;
-  --color-neutral: #212638;
-  --color-neutral-content: #ffffff;
-  --color-base-100: #ffffff;
-  --color-base-200: #f4f8ff;
-  --color-base-300: #dae8ff;
-  --color-base-content: #212638;
-  --color-info: #93bbfb;
-  --color-success: #34eeb6;
+  --color-primary: #39ff14;
+  --color-primary-content: #0a0a0a;
+  --color-secondary: #1a3a1a;
+  --color-secondary-content: #39ff14;
+  --color-accent: #39ff14;
+  --color-accent-content: #0a0a0a;
+  --color-neutral: #39ff14;
+  --color-neutral-content: #0a0a0a;
+  --color-base-100: #0a0a0a;
+  --color-base-200: #0d0d0d;
+  --color-base-300: #141414;
+  --color-base-content: #39ff14;
+  --color-info: #39ff14;
+  --color-success: #39ff14;
   --color-warning: #ffcf72;
-  --color-error: #ff8863;
+  --color-error: #ff3333;
 
-  --radius-field: 9999rem;
-  --radius-box: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
   --tt-tailw: 6px;
 }
 
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #212638;
-  --color-primary-content: #f9fbff;
-  --color-secondary: #323f61;
-  --color-secondary-content: #f9fbff;
-  --color-accent: #4969a6;
-  --color-accent-content: #f9fbff;
-  --color-neutral: #f9fbff;
-  --color-neutral-content: #385183;
-  --color-base-100: #385183;
-  --color-base-200: #2a3655;
-  --color-base-300: #212638;
-  --color-base-content: #f9fbff;
-  --color-info: #385183;
-  --color-success: #34eeb6;
+  --color-primary: #39ff14;
+  --color-primary-content: #0a0a0a;
+  --color-secondary: #1a3a1a;
+  --color-secondary-content: #39ff14;
+  --color-accent: #39ff14;
+  --color-accent-content: #0a0a0a;
+  --color-neutral: #39ff14;
+  --color-neutral-content: #0a0a0a;
+  --color-base-100: #0a0a0a;
+  --color-base-200: #0d0d0d;
+  --color-base-300: #141414;
+  --color-base-content: #39ff14;
+  --color-info: #39ff14;
+  --color-success: #39ff14;
   --color-warning: #ffcf72;
-  --color-error: #ff8863;
+  --color-error: #ff3333;
 
-  --radius-field: 9999rem;
-  --radius-box: 1rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
 
   --tt-tailw: 6px;
   --tt-bg: var(--color-primary);
@@ -71,9 +69,6 @@
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
   looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
 */
 @layer base {
   *,
@@ -85,11 +80,14 @@
   }
 
   p {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
   }
 
   body {
     min-height: 100vh;
+    background: #0a0a0a;
+    color: #39ff14;
+    font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
   }
 
   h1,
@@ -103,7 +101,7 @@
 
 :root,
 [data-theme] {
-  background: var(--color-base-200);
+  background: #0a0a0a;
 }
 
 .btn {
@@ -120,4 +118,103 @@
 
 .link:hover {
   opacity: 80%;
+}
+
+/* Scanline overlay */
+.scanline-overlay {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Terminal card */
+.terminal-card {
+  background: #111111;
+  border: 1px solid #39ff14;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* Terminal label */
+.terminal-label {
+  color: #39ff14;
+  text-transform: uppercase;
+  font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+/* Terminal title */
+.terminal-title {
+  color: #39ff14;
+  text-transform: uppercase;
+  font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+}
+
+/* Terminal text */
+.terminal-text {
+  color: #cccccc;
+  font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+}
+
+/* Terminal textarea */
+.terminal-textarea {
+  width: 100%;
+  background: #0a0a0a;
+  border: 1px solid #333;
+  color: #39ff14;
+  font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  resize: none;
+  outline: none;
+}
+
+.terminal-textarea:focus {
+  border-color: #39ff14;
+}
+
+.terminal-textarea::placeholder {
+  color: #555;
+}
+
+/* Terminal button */
+.terminal-btn {
+  background: transparent;
+  border: 1px solid #39ff14;
+  color: #39ff14;
+  font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.terminal-btn:hover:not(:disabled) {
+  background: #39ff14;
+  color: #0a0a0a;
+}
+
+.terminal-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
