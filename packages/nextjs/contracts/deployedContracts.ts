@@ -4,6 +4,229 @@
  */
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
-const deployedContracts = {} as const;
+const deployedContracts = {
+  8453: {
+    BurnBoard: {
+      address: "0xEB956d3Ab4C11Afb57b63957e2Ccb18d6BA89810",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "BURN_ADDRESS",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "BURN_COST",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "CLAWD",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "MAX_PAGE_SIZE",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getMessage",
+          inputs: [
+            {
+              name: "index",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "tuple",
+              internalType: "struct BurnBoard.Message",
+              components: [
+                {
+                  name: "author",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "timestamp",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "text",
+                  type: "string",
+                  internalType: "string",
+                },
+              ],
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getMessageCount",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "getMessages",
+          inputs: [
+            {
+              name: "offset",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "limit",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "tuple[]",
+              internalType: "struct BurnBoard.Message[]",
+              components: [
+                {
+                  name: "author",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "timestamp",
+                  type: "uint64",
+                  internalType: "uint64",
+                },
+                {
+                  name: "text",
+                  type: "string",
+                  internalType: "string",
+                },
+              ],
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "messages",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "author",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "timestamp",
+              type: "uint64",
+              internalType: "uint64",
+            },
+            {
+              name: "text",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "post",
+          inputs: [
+            {
+              name: "text",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "Posted",
+          inputs: [
+            {
+              name: "author",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "index",
+              type: "uint256",
+              indexed: true,
+              internalType: "uint256",
+            },
+            {
+              name: "text",
+              type: "string",
+              indexed: false,
+              internalType: "string",
+            },
+          ],
+          anonymous: false,
+        },
+      ],
+      inheritedFunctions: {},
+    },
+  },
+} as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
