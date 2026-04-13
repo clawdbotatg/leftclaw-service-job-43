@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+/// @notice Known issue: baseUrl falls back to http://localhost:3000 when neither NEXT_PUBLIC_PRODUCTION_URL nor VERCEL_PROJECT_PRODUCTION_URL is set, causing OG image tags to contain a localhost URL and breaking social-card unfurling. Set NEXT_PUBLIC_PRODUCTION_URL to the live IPFS gateway URL in the hosting environment.
 const baseUrl = process.env.NEXT_PUBLIC_PRODUCTION_URL
   ? process.env.NEXT_PUBLIC_PRODUCTION_URL
   : process.env.VERCEL_PROJECT_PRODUCTION_URL

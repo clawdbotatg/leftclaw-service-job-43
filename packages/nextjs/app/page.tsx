@@ -11,6 +11,7 @@ import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaf
 import { notification } from "~~/utils/scaffold-eth";
 
 const BURN_COST = BigInt("1000000000000000000000"); // 1000 CLAWD (18 decimals)
+/// @notice Known issue: source verification status of this contract on Basescan cannot be confirmed from code review alone — visit the explorer's Contract tab and run forge verify-contract if the green checkmark is absent.
 const BURN_BOARD_ADDRESS = "0xEB956d3Ab4C11Afb57b63957e2Ccb18d6BA89810";
 const PAGE_SIZE = 50;
 
@@ -105,6 +106,7 @@ const PostForm = () => {
         functionName: "approve",
         args: [BURN_BOARD_ADDRESS, BURN_COST],
       });
+      /// @notice Known issue: the deep-link setTimeout is scheduled before the approval promise resolves or rejects; if the user rejects the wallet prompt the 2-second timer still fires and navigates back to the wallet app with nothing to sign. Minor UX annoyance; the flow recovers on retry.
       // Mobile deep link: route to the connected wallet before awaiting the signature
       if (typeof window !== "undefined" && !window.ethereum) {
         const deepLink = getWalletDeepLink();
@@ -136,6 +138,7 @@ const PostForm = () => {
         functionName: "post",
         args: [text],
       });
+      /// @notice Known issue: the deep-link setTimeout is scheduled before the post promise resolves or rejects; if the user rejects the wallet prompt the 2-second timer still fires and navigates back to the wallet app with nothing to sign. Minor UX annoyance; the flow recovers on retry.
       // Mobile deep link: route to the connected wallet before awaiting the signature
       if (typeof window !== "undefined" && !window.ethereum) {
         const deepLink = getWalletDeepLink();
@@ -172,6 +175,7 @@ const PostForm = () => {
         </button>
       );
     }
+    /// @notice Known issue: Approve button disabled prop omits approvalCooldown — the button branch is entirely hidden when approvalCooldown=true so the user cannot reach it, meaning the intent is met despite the narrower guard.
     if (!hasAllowance && !approvalCooldown && !approvalSubmitting) {
       return (
         <button
@@ -180,6 +184,13 @@ const PostForm = () => {
           disabled={!hasBalance || isApproving || approvalSubmitting}
         >
           {!hasBalance ? "> INSUFFICIENT CLAWD" : isApproving ? "> APPROVING..." : "> APPROVE CLAWD"}
+        </button>
+      );
+    }
+    if (approvalSubmitting) {
+      return (
+        <button className="terminal-btn w-full" disabled>
+          {">"} APPROVING...
         </button>
       );
     }

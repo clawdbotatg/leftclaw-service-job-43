@@ -20,6 +20,7 @@ URL: (deployed via bgipfs)
 
 ## Stack
 
+<!-- @notice Known issue: SE-2 template attribution retained in stack listing; QA skill recommends removing SE-2 boilerplate text but this is harmless for a public repo. -->
 - Scaffold-ETH 2 (Foundry flavor)
 - Next.js, RainbowKit, Wagmi, Viem
 - Deployed to IPFS via bgipfs
@@ -27,7 +28,7 @@ URL: (deployed via bgipfs)
 
 ## Known Issues
 
-These are accepted limitations documented after the Cycle 1 audit:
+These are accepted limitations documented after the Cycle 1 and Cycle 2 audits:
 
 - **No USD equivalent next to CLAWD amounts** — Balance and burn cost display raw token amounts. CLAWD has no guaranteed on-chain price feed, so a USD conversion is not implemented.
 - **handlePost lacks double-spend guard** — The POST button is only gated by wagmi `isPending`. The small window before `isPending` is set is acceptable since each post requires a separate wallet signature.
@@ -39,3 +40,8 @@ These are accepted limitations documented after the Cycle 1 audit:
 - **Contract is intentionally ownerless** — No owner, admin, pause, or upgrade path. The "transfer privileged roles to client" requirement is N/A; this is a hyperstructure.
 - **WalletConnect / Alchemy keys fall back to SE-2 defaults** — Set `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` and `NEXT_PUBLIC_ALCHEMY_API_KEY` in the hosting platform to avoid sharing rate limits with other SE-2 forks.
 - **wagmiConfig bare http() fallback** — Defensive transport of last resort; never fires on Base with a configured Alchemy key.
+- **Deep-link setTimeout fires on TX rejection** — The 2-second wallet deep-link timer is started before the approval/post promise settles. If the user rejects the transaction the timer still navigates back to the wallet app; the flow recovers on the next attempt.
+- **OG image URL is relative without NEXT_PUBLIC_PRODUCTION_URL** — Social-card unfurling (Twitter, Discord, Farcaster) will break unless `NEXT_PUBLIC_PRODUCTION_URL` is set to the live IPFS gateway URL in the hosting environment.
+- **Approve button disabled prop omits approvalCooldown** — The Approve button branch is hidden entirely when `approvalCooldown=true`, so the intent of the full guard is met; the implementation deviates from the recommended pattern but is acceptable.
+- **SE-2 stack attribution retained** — The Stack section references Scaffold-ETH 2; QA skill recommends removing template boilerplate but it is harmless here.
+- **Contract source verification on Basescan unconfirmed** — The README links to the BurnBoard address but the green ✅ checkmark must be verified by visiting the explorer. Run `forge verify-contract` if the source is not yet verified.

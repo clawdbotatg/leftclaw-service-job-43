@@ -83,6 +83,7 @@
     margin: 0.5rem 0;
   }
 
+  /* @notice Known issue: body uses a hardcoded CRT-green palette without data-theme="dark" on <html>; both DaisyUI theme blocks define identical colors so the theme toggle has no visible effect, making this acceptable for the intentional design. */
   body {
     min-height: 100vh;
     background: #0a0a0a;
