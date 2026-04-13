@@ -16,7 +16,7 @@ const PAGE_SIZE = 50;
 
 // --- PostForm Component ---
 const PostForm = () => {
-  const { address: connectedAddress, isConnected } = useAccount();
+  const { address: connectedAddress, isConnected, connector } = useAccount();
   const chainId = useChainId();
   const { switchChain } = useSwitchChain();
   const { openConnectModal } = useConnectModal();
@@ -63,6 +63,40 @@ const PostForm = () => {
     }
   };
 
+  // Resolve a wallet-specific deep-link URI, consulting connector.id and WalletConnect
+  // localStorage session metadata so mobile users land in the correct wallet app.
+  const getWalletDeepLink = useCallback((): string | null => {
+    if (!connector) return null;
+    const id = connector.id;
+    if (id === "metaMask") return "metamask://";
+    if (id === "rainbow") return "rainbow://";
+    if (id === "coinbaseWallet") return "cbwallet://";
+    if (id === "walletConnect") {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key?.includes("wc@2")) {
+            const val = localStorage.getItem(key);
+            if (val) {
+              const parsed = JSON.parse(val) as {
+                value?: Array<{ peer?: { metadata?: { name?: string } } }>;
+              };
+              const peerName = parsed?.value?.[0]?.peer?.metadata?.name?.toLowerCase() ?? "";
+              if (peerName.includes("rainbow")) return "rainbow://";
+              if (peerName.includes("coinbase")) return "cbwallet://";
+              if (peerName.includes("ledger")) return "ledgerlive://";
+              if (peerName.includes("phantom")) return "phantom://";
+            }
+          }
+        }
+      } catch {
+        // ignore parse errors
+      }
+      return null; // WalletConnect but peer wallet not identified — no redirect
+    }
+    return null;
+  }, [connector]);
+
   const handleApprove = async () => {
     if (approvalSubmitting || approvalCooldown) return;
     setApprovalSubmitting(true);
@@ -71,11 +105,14 @@ const PostForm = () => {
         functionName: "approve",
         args: [BURN_BOARD_ADDRESS, BURN_COST],
       });
-      // Mobile deep link: redirect to wallet before awaiting so user can sign
+      // Mobile deep link: route to the connected wallet before awaiting the signature
       if (typeof window !== "undefined" && !window.ethereum) {
-        setTimeout(() => {
-          window.location.href = "metamask://";
-        }, 500);
+        const deepLink = getWalletDeepLink();
+        if (deepLink) {
+          setTimeout(() => {
+            window.location.href = deepLink;
+          }, 2000);
+        }
       }
       await approvePromise;
       notification.success("CLAWD approved!");
@@ -91,6 +128,7 @@ const PostForm = () => {
     }
   };
 
+  /// @notice Known issue: handlePost lacks the same submitting/cooldown double-spend guards as handleApprove — the POST button is only disabled by wagmi isPending; a postSubmitting state mirroring the approve flow would close the gap symmetrically.
   const handlePost = async () => {
     if (!text.trim() || isOverLimit) return;
     try {
@@ -98,11 +136,14 @@ const PostForm = () => {
         functionName: "post",
         args: [text],
       });
-      // Mobile deep link: redirect to wallet before awaiting so user can sign
+      // Mobile deep link: route to the connected wallet before awaiting the signature
       if (typeof window !== "undefined" && !window.ethereum) {
-        setTimeout(() => {
-          window.location.href = "metamask://";
-        }, 500);
+        const deepLink = getWalletDeepLink();
+        if (deepLink) {
+          setTimeout(() => {
+            window.location.href = deepLink;
+          }, 2000);
+        }
       }
       await postPromise;
       notification.success("Message posted & 1000 CLAWD burned!");
@@ -112,6 +153,7 @@ const PostForm = () => {
     }
   };
 
+  /// @notice Known issue: balance, burn cost, and total burned show raw CLAWD amounts with no USD equivalent — acceptable because CLAWD has no guaranteed on-chain price feed.
   const formattedBalance = clawdBalance !== undefined ? Number(formatUnits(clawdBalance, 18)).toLocaleString() : "---";
 
   // Determine button state
@@ -174,6 +216,7 @@ const PostForm = () => {
 };
 
 // --- Relative time helper ---
+/// @notice Known issue: relativeTime() reads Date.now() at render time; timestamps will not auto-refresh after mount, leaving an open tab showing stale relative times until a re-render is triggered.
 const relativeTime = (timestamp: number) => {
   const now = Math.floor(Date.now() / 1000);
   const diff = now - timestamp;
@@ -215,19 +258,17 @@ const MessageFeed = () => {
 
   const totalCount = messageCount ? Number(messageCount) : 0;
 
-  // Calculate the offset for newest-first pagination
-  const calcOffset = useCallback(
-    (page: number) => {
-      const start = totalCount - page - PAGE_SIZE;
-      return start < 0 ? 0 : start;
-    },
-    [totalCount],
-  );
+  /// @notice Known issue: MessageFeed and Home each independently subscribe to getMessageCount — two RPC reads of the same value on every poll interval; a shared context or lifted state would be cleaner but is acceptable since react-query coalesces the requests.
+  // calcOffset: pass already-loaded count as the tail cursor.
+  // The contract interprets offset as "skip this many newest messages from the tail",
+  // so passing the number we have already loaded pages backwards correctly.
+  const calcOffset = useCallback((loaded: number) => loaded, []);
 
+  // calcLimit: request up to PAGE_SIZE, capped to the remaining unloaded messages.
   const calcLimit = useCallback(
-    (page: number) => {
-      const start = totalCount - page - PAGE_SIZE;
-      return start < 0 ? totalCount - page : PAGE_SIZE;
+    (loaded: number) => {
+      const remaining = totalCount - loaded;
+      return remaining > PAGE_SIZE ? PAGE_SIZE : remaining;
     },
     [totalCount],
   );
@@ -284,6 +325,7 @@ const MessageFeed = () => {
 
   return (
     <div>
+      {/* Known issue: key uses index i as tiebreaker; same author posting twice in the same block can cause subtle reorder bugs until i disambiguates — harmless on this read-only list. */}
       {messages.map((msg, i) => (
         <MessageCard key={`${msg.author}-${msg.timestamp}-${i}`} msg={msg} />
       ))}
@@ -298,6 +340,7 @@ const MessageFeed = () => {
 
 // --- Main Page ---
 const Home: NextPage = () => {
+  /// @notice Known issue: Home and MessageFeed each independently subscribe to getMessageCount — react-query coalesces the requests, but a shared context would be cleaner.
   const { data: messageCount } = useScaffoldReadContract({
     contractName: "BurnBoard",
     functionName: "getMessageCount",

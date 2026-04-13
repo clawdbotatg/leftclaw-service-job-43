@@ -5,6 +5,7 @@ interface ICLAWD {
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
 }
 
+/// @notice Known issue: Contract is intentionally ownerless and immutable — no constructor args, no owner, no admin, no pause, no upgrade path. The client privileged-role transfer requirement is N/A: this contract has no privileged roles.
 contract BurnBoard {
     address public constant CLAWD = 0x9f86dB9fc6f7c9408e8Fda3Ff8ce4e78ac7a6b07;
     address public constant BURN_ADDRESS = 0x000000000000000000000000000000000000dEaD;
@@ -48,6 +49,7 @@ contract BurnBoard {
         return messages.length;
     }
 
+    /// @notice Known issue: getMessage(uint256) is redundant — Solidity's auto-generated public getter for the messages array already exposes the same data. Harmless duplicate.
     function getMessage(uint256 index) external view returns (Message memory) {
         return messages[index];
     }

@@ -31,6 +31,7 @@ export const wagmiConfig = createConfig({
           : [http(alchemyHttpUrl), ...rpcFallbacks];
       }
     }
+    // @notice Known issue: bare http() fallback only fires when no Alchemy URL and no override exist — on Base with a configured Alchemy key this branch never executes. Defensive code, not a live regression.
     // Ensure at least one transport exists
     if (rpcFallbacks.length === 0) {
       rpcFallbacks = [http()];
